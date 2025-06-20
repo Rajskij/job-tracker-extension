@@ -18,7 +18,7 @@ export async function findSpreadsheetByName(accessToken, sheetName) {
             console.log("Found sheet:", data.files[0]);
             return data.files[0]; // { id, name }
         } else {
-            console.warn("Sheet not found");
+            console.warn("Sheet not found", response);
             return null;
         }
     } else {
@@ -30,6 +30,7 @@ export async function findSpreadsheetByName(accessToken, sheetName) {
 export async function appendJobRow(spreadsheetId, accessToken, rowValues) {
     const sheetName = 'Instructions for Job Tracking';
     console.log(rowValues);
+    console.log('Spreed sheet id: ', spreadsheetId);
 
     const response = await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:Z1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
@@ -53,21 +54,32 @@ export async function appendJobRow(spreadsheetId, accessToken, rowValues) {
     return true;
 }
 
-export async function listAllSheets(accessToken) {
+ export async function getAllSheets(accessToken) {
+  try {
     const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.spreadsheet' and trashed = false&fields=files(id,name)&includeItemsFromAllDrives=true&supportsAllDrives=true`,
-        {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
+      `https://www.googleapis.com/drive/v3/files?` +
+      `q=mimeType='application/vnd.google-apps.spreadsheet'` +
+      `&fields=files(id,name,createdTime,modifiedTime,webViewLink)` +
+      `&orderBy=name` +
+      `&pageSize=1000`, // Maximum allowed by API
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         }
+      }
     );
 
-    const data = await response.json();
-    console.log("📋 All available sheets:");
-    data.files.forEach(file => {
-        console.log(`🟢 ${file.name} — ${file.id}`);
-    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Drive API error: ${error.error?.message || response.statusText}`);
+    }
 
-    return data.files;
+    const data = await response.json();
+    return data.files || [];
+
+  } catch (error) {
+    console.error('Failed to fetch sheets:', error);
+    throw error; // Re-throw for caller to handle
+  }
 }

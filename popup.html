@@ -3,10 +3,32 @@
 <head>
   <title>Google Sheets Auth</title>
 </head>
+<style>
+  button {
+    margin: 5px 0;
+    padding: 10px 0;
+    width: 100px;
+    border-radius: 50px;
+    border-style: none;
+    box-shadow: 2px 2px 5px gray;
+    color: white;
+    background-color: rgb(161, 161, 161, 0.7)
+  }
+
+  button:hover {
+    filter: brightness(90%)
+  }
+
+  button:active {
+    box-shadow: 0.5px 0.5px 5px gray;
+  }
+</style>
 <body>
-  <button id="auth">Login with Google</button>
-  <button id="data-btn">Add data</button>
-  <button id="grab">Grab from LinkedIn</button>
+  <button id="login">Login with <strong>Google</strong></button>
+  <button id="logout">Logout from <strong>Google</strong></button>
+  <hr>
+  <button id="grab_linkedin" style="background-color: rgb(40, 80, 165); color: white;">Grab from <strong>LinkedIn</strong></button>
+  <button id="grab_indeed" style="background-color: white; color: rgb(10, 33, 83);">Grab from <strong>Indeed</strong></button>
 
   <script src="popup.js"></script>
   <script src="./services/googleSheetsService.js" type="module"></script>
